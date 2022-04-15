@@ -1,0 +1,41 @@
+Syntax:
+
+Adding a text message system
+    test_text_one = TextMessage(reciever, date, [(sender, message)])
+
+    reciever: string - "mc"
+    date: string - "December 17th"
+    [(sender, message)]: tuple list - [("mc", "Coding is easy")]
+
+Adding a character to text message history system
+    default X_hist = TextHistoryCharacter(character)
+
+    X_hist: variable name - s_hist
+    character: lower case string - "sayori"
+
+Adding previous TextMessage class to history
+    $ X_hist.text_history.append(text_class)
+
+    X_hist: TextHistoryCharacter - s_hist (make sure this is defined)
+    text_class: TextMessage - test_text_one (make sure this is defined)
+
+Resetting current_text_num: $ current_text_num = 0
+Switch to Android/Libsong: default persistent.iphone = False
+Switch to Apple/danOS: default persistent.iphone = True
+
+Calling the phone screen
+    call screen phone(number, sender, text_class, hist=None, groupChat=False)
+
+    number: string - "+1 (323) 555-5555"
+    sender: string = "Sayori"
+    text_class: TextMessage - test_text_one (make sure this is defined)
+    hist: (Optional) TextMessage list - group_hist2
+    groupChat: boolean - False (set this to True if this is a multi-character convo)
+        - (Optional) If this is a multi-character convo, add the text_class to it's own history list.   
+
+Calling the phone call screen
+    call screen phone_call(caller, region, voiceFile)
+
+    caller: string - "Sayori"
+    region: string - "Los Santos, SA"
+    voiceFile: string path - "bgm/05.ogg"

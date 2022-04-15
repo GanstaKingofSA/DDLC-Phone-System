@@ -1,0 +1,3 @@
+Controls:
+
+Left Click - Advance to next text
