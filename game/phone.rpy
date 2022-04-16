@@ -66,15 +66,15 @@ default character_hist_list = [s_hist, n_hist, m_hist, y_hist]
 screen phone(number, sender, text_class, hist=None, groupChat=False):
 
     style_prefix "phone"
-    zorder 200
+    zorder 190
     
     # This sets the viewport sizes for the scrollable text message screen
     python:
         vp_xsize = 290
         if persistent.iphone:
-            vp_ysize = 375
+            vp_ysize = 385
         else:
-            vp_ysize = 440
+            vp_ysize = 445
 
         text_class_size = len(text_class.text_set) - 1
 
@@ -82,142 +82,131 @@ screen phone(number, sender, text_class, hist=None, groupChat=False):
     frame:
         xpos 0.34
         ypos 0.03
-        
-        # The phone fixed display for message data
-        fixed:
+        xsize vp_xsize
+        ysize vp_ysize
+
+        hbox:
             if persistent.iphone:
-                xpos 0.05
-                ypos 0.11
+                xoffset 205
+                yoffset 85
             else:
-                xpos 0.052
-                ypos 0.08
+                xoffset 70
+                yoffset 55
+            add "time_now"
+        
+        viewport:
+            if persistent.iphone:
+                xoffset 175
+                yoffset 105
+            else:
+                xoffset 125
+                yoffset 77
+            has vbox
 
-            # Hbox for the current time
-            hbox:
-                if persistent.iphone:
-                    xpos 0.11
-                else:
-                    xoffset 5
-                add "time_now"
+            text sender substitute False size 12 
+            text number substitute False size 12
+        
+        # The scrollable text message viewport    
+        viewport:
+            xoffset 80
+            if persistent.iphone:
+                yoffset 160
+            else:
+                yoffset 130
+            xsize vp_xsize
+            ysize vp_ysize
+            mousewheel True
+            has vbox
+            spacing 10
 
-            # Fixed position for the number/sender data in a text
-            fixed:
-                ypos 0.027   
-                hbox:
-                    if persistent.iphone:
-                        xpos 0.064
-                        #null width 
-                        vbox:
-                            text number substitute False xalign 0.5 size 14
-                            text sender substitute False xalign 0.5 size 12
-                    else:
-                        xpos 0.04
-                        vbox:
-                            text number substitute False size 14
-                            text sender substitute False yalign 0.5 size 12
+            # Grabs the history list of a character via text_class and 
+            # compares it to character_hist_list
+            if not groupChat:
+                python:
+                    if hist is None:
+                        for x in character_hist_list:
+                            if sender.lower() == x.character:
+                                hist = x.text_history
 
-            # The scrollable text message viewport    
-            viewport:
-                xpos 0.01
-                if persistent.iphone:
-                    ypos 0.12
-                else:
-                    ypos 0.1
-                xsize vp_xsize
-                ysize vp_ysize
-                yinitial 1.0
-                mousewheel True
-                has vbox
-                spacing 10
+                    if hist is None:
+                        raise Exception("Cannot find history list for character " + sender)
+            else: 
+                python:
+                    if hist is None:
+                        hist = group_hist
 
-                # Grabs the history list of a character via text_class and 
-                # compares it to character_hist_list
-                if not groupChat:
-                    python:
-                        if hist is None:
-                            for x in character_hist_list:
-                                if sender.lower() == x.character:
-                                    hist = x.text_history
-
-                        if hist is None:
-                            raise Exception("Cannot find history list for character " + sender)
-                else: 
-                    python:
-                        if hist is None:
-                            hist = group_hist
-
-                # If there is history data prior to this, display it first     
-                if len(hist) > 0:
-                    for past in hist:
-                        text past.date substitute False size 10 xalign 0.9
-                        for prev in range(0, len(past.text_set)):
-                            if past.text_set[prev][0] == text_class.reciever:
-                                frame:
-                                    style "player_text_frame"
-                                    text past.text_set[prev][1] substitute False
-                            else:
-                                if groupChat:
-                                    if past.text_set[prev][0] != "mc":
-                                        text eval(past.text_set[prev][0] + "_name") size 10
-                                    else:
-                                        text "[player]" size 10
-                                frame:
-                                    style "text_frame"
-                                    text past.text_set[prev][1] substitute False
-
-                # If the text message is not a continous text of the prev test, 
-                # show a new date 
-                if text_class.date is not None:
-                    text text_class.date substitute False size 10 xalign 0.9
-
-                # If we have advanced in the current text message section, display
-                # the old messages
-                if current_text_num >= 1:
-                    for prev in range(0, current_text_num):
-                        if text_class.text_set[prev][0] == text_class.reciever:
+            # If there is history data prior to this, display it first     
+            if len(hist) > 0:
+                for past in hist:
+                    text past.date substitute False size 10 xalign 0.9
+                    for prev in range(0, len(past.text_set)):
+                        if past.text_set[prev][0] == text_class.reciever:
                             frame:
                                 style "player_text_frame"
-                                text text_class.text_set[prev][1] substitute False
+                                text past.text_set[prev][1] substitute False
                         else:
                             if groupChat:
-                                if text_class.text_set[prev][0] != "mc":
-                                    text eval(text_class.text_set[prev][0] + "_name") size 10
+                                if past.text_set[prev][0] != "mc":
+                                    text eval(past.text_set[prev][0] + "_name") size 10
                                 else:
                                     text "[player]" size 10
                             frame:
                                 style "text_frame"
-                                text text_class.text_set[prev][1] substitute False
+                                text past.text_set[prev][1] substitute False
 
-                # Checks if it is a group chat
-                if groupChat:
-                    # Checks if we aren't MC to eval s_name
-                    if text_class.text_set[current_text_num][0] != "mc":
-                        if text_class.text_set[current_text_num][0] != text_class.reciever:
-                            text eval(text_class.text_set[current_text_num][0] + "_name") size 10
-                    else:
-                        if text_class.text_set[current_text_num][0] != text_class.reciever:
-                            text "[player]" size 10
+            # If the text message is not a continous text of the prev test, 
+            # show a new date 
+            if text_class.date is not None:
+                text text_class.date substitute False size 10 xalign 0.9
 
-                # If the sender in the text_class.text_set message is the reciever, show it
-                # to the right hand side
-                if text_class.text_set[current_text_num][0] == text_class.reciever:
-                    if persistent.iphone:
-                        frame at iphone_text_trans(240, 95):
+            # If we have advanced in the current text message section, display
+            # the old messages
+            if current_text_num >= 1:
+                for prev in range(0, current_text_num):
+                    if text_class.text_set[prev][0] == text_class.reciever:
+                        frame:
                             style "player_text_frame"
-                            text text_class.text_set[current_text_num][1] substitute False
+                            text text_class.text_set[prev][1] substitute False
                     else:
-                        frame at samsung_text_trans:
-                            style "player_text_frame"
-                            text text_class.text_set[current_text_num][1] substitute False
+                        if groupChat:
+                            if text_class.text_set[prev][0] != "mc":
+                                text eval(text_class.text_set[prev][0] + "_name") size 10
+                            else:
+                                text "[player]" size 10
+                        frame:
+                            style "text_frame"
+                            text text_class.text_set[prev][1] substitute False
+
+            # Checks if it is a group chat
+            if groupChat:
+                # Checks if we aren't MC to eval s_name
+                if text_class.text_set[current_text_num][0] != "mc":
+                    if text_class.text_set[current_text_num][0] != text_class.reciever:
+                        text eval(text_class.text_set[current_text_num][0] + "_name") size 10
                 else:
-                    if persistent.iphone:
-                        frame at iphone_text_trans(-80, 95):
-                            style "text_frame"
-                            text text_class.text_set[current_text_num][1] substitute False
-                    else:
-                        frame at samsung_text_trans:
-                            style "text_frame"
-                            text text_class.text_set[current_text_num][1] substitute False
+                    if text_class.text_set[current_text_num][0] != text_class.reciever:
+                        text "[player]" size 10
+
+            # If the sender in the text_class.text_set message is the reciever, show it
+            # to the right hand side
+            if text_class.text_set[current_text_num][0] == text_class.reciever:
+                if persistent.iphone:
+                    frame at iphone_text_trans(240, 95):
+                        style "player_text_frame"
+                        text text_class.text_set[current_text_num][1] substitute False
+                else:
+                    frame at samsung_text_trans:
+                        style "player_text_frame"
+                        text text_class.text_set[current_text_num][1] substitute False
+            else:
+                if persistent.iphone:
+                    frame at iphone_text_trans(-80, 95):
+                        style "text_frame"
+                        text text_class.text_set[current_text_num][1] substitute False
+                else:
+                    frame at samsung_text_trans:
+                        style "text_frame"
+                        text text_class.text_set[current_text_num][1] substitute False
 
     key "mousedown_1" action If(current_text_num < text_class_size, SetVariable("current_text_num", current_text_num+1), Return(0))
 
@@ -254,14 +243,14 @@ transform iphone_text_trans(x1, x2):
 screen phone_call(caller, region, voicefile, inCall=False):
 
     style_prefix "phone_call"
-    zorder 200
+    zorder 190
     
     python:
         vp_xsize = 290
         if persistent.iphone:
-            vp_ysize = 375
+            vp_ysize = 385
         else:
-            vp_ysize = 440
+            vp_ysize = 445
 
     frame:
         if inCall:
@@ -271,53 +260,46 @@ screen phone_call(caller, region, voicefile, inCall=False):
         xpos 0.34
         ypos 0.03
 
-        fixed:
+        hbox:
             if persistent.iphone:
-                xpos 0.05
-                ypos 0.11
+                xoffset 205
+                yoffset 80
             else:
-                xpos 0.052
-                ypos 0.08
+                xoffset 70
+                yoffset 55
+            add "time_now"
 
-            hbox:
-                if persistent.iphone:
-                    xpos 0.11
-                else:
-                    xoffset 5
-                add "time_now"
-
-            # Fixed placement for Caller/Region data
-            fixed:
-                ypos 0.1
-                hbox:
-                    if persistent.iphone:
-                        xpos 0.06
-                    else:
-                        xpos 0.04
-                    vbox:
-                        text caller
-                        text region xalign 0.5 size 14
+        # Fixed placement for Caller/Region data
+        hbox:
+            xoffset 135
+            if persistent.iphone:
+                yoffset 150
+            else:
+                yoffset 135
+            vbox:
+                text caller
+                text region size 14
             
             # Fixed placement for the call/hang up buttons
-            fixed:
-                if persistent.iphone:
-                    ypos 0.55
-                    xpos 0.094
-                else:
-                    ypos 0.6
-                    xpos 0.092
+        hbox:
+            if persistent.iphone:
+                xoffset 185
+                yoffset 470
+            else:
+                xoffset 185
+                yoffset 500
                 
-                # Checks if we are in call
-                if inCall:
-                    button:
-                        action Return(0)
+            # Checks if we are in call
+            if inCall:
+                button:
+                    action [Stop("voice"), Return(0)]
 
-                        add "mod_assets/samsunghangupicon.png"
-                else:
-                    button:
-                        action [Play("voice", voicefile), Show("phone_call", caller=caller, region=region, voicefile=voicefile, inCall=True), With(Dissolve(0.2))]
+                    add "mod_assets/samsunghangupicon.png"
+            else:
+                button:
+                    action [Play("voice", voicefile), Show("phone_call", caller=caller, region=region, voicefile=voicefile, inCall=True), With(Dissolve(0.2))]
 
-                        add "mod_assets/samsungcallicon.png"
+                    add "mod_assets/samsungcallicon.png"
 
 style phone_call_frame:
     background If(persistent.iphone, "mod_assets/iosphonecall.png", "mod_assets/samsungphonecall.png")
