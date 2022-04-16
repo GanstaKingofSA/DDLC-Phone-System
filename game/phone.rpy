@@ -85,15 +85,17 @@ screen phone(number, sender, text_class, hist=None, groupChat=False):
         xsize vp_xsize
         ysize vp_ysize
 
+        # The time hbox location
         hbox:
             if persistent.iphone:
                 xoffset 205
                 yoffset 85
             else:
                 xoffset 70
-                yoffset 55
+                yoffset 58
             add "time_now"
         
+        # The sender/number info
         viewport:
             if persistent.iphone:
                 xoffset 175
@@ -210,7 +212,7 @@ screen phone(number, sender, text_class, hist=None, groupChat=False):
 
     key "mousedown_1" action If(current_text_num < text_class_size, SetVariable("current_text_num", current_text_num+1), Return(0))
 
-style phone_frame:
+style phone_frame is empty:
     background If(persistent.iphone, true="mod_assets/iosphoneon.png", false="mod_assets/samsungphoneon.png")
 
 style phone_text:
@@ -269,7 +271,7 @@ screen phone_call(caller, region, voicefile, inCall=False):
                 yoffset 55
             add "time_now"
 
-        # Fixed placement for Caller/Region data
+        # Hbox placement for Caller/Region data
         hbox:
             xoffset 135
             if persistent.iphone:
@@ -280,7 +282,7 @@ screen phone_call(caller, region, voicefile, inCall=False):
                 text caller
                 text region size 14
             
-            # Fixed placement for the call/hang up buttons
+        # Hbox placement for the call/hang up buttons
         hbox:
             if persistent.iphone:
                 xoffset 185
