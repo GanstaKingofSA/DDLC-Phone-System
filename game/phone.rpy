@@ -129,9 +129,7 @@ screen phone(number, sender, text_class, hist=None, groupChat=False):
                         for x in character_hist_list:
                             if sender.lower() == x.character:
                                 hist = x.text_history
-
-                    if hist is None:
-                        raise Exception("Cannot find history list for character " + sender)
+                                
             else: 
                 python:
                     if hist is None:
