@@ -10,11 +10,11 @@ init python:
             self.reciever = reciever
             self.date = date
 
-            if type(text_set) is not list:
+            if not isinstance(text_set, list):
                 raise Exception("Not a list array of tuples.")
             
             for x in text_set:
-                if type(x) is not tuple:
+                if not isinstance(x, tuple):
                     raise Exception("Non-tuple found in list.")
 
             self.text_set = text_set
@@ -129,9 +129,7 @@ screen phone(number, sender, text_class, hist=None, groupChat=False):
                         for x in character_hist_list:
                             if sender.lower() == x.character:
                                 hist = x.text_history
-
-                    if hist is None:
-                        raise Exception("Cannot find history list for character " + sender)
+                                
             else: 
                 python:
                     if hist is None:
