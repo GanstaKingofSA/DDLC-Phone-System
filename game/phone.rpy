@@ -10,11 +10,11 @@ init python:
             self.reciever = reciever
             self.date = date
 
-            if type(text_set) is not list:
+            if not isinstance(text_set, list):
                 raise Exception("Not a list array of tuples.")
             
             for x in text_set:
-                if type(x) is not tuple:
+                if not isinstance(x, tuple):
                     raise Exception("Non-tuple found in list.")
 
             self.text_set = text_set
